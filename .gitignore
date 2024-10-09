@@ -1,0 +1,67 @@
+# Fichiers spécifiques à IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Les fichiers de configuration locales
+/.idea/workspace.xml
+/.idea/tasks.xml
+/.idea/datasources/
+/.idea/dataSources/
+/.idea/dataSources.local.xml
+/.idea/sqlDataSources.xml
+/.idea/dynamic.xml
+/.idea/uiDesigner.xml
+/httpRequests/
+/shelf/
+/.idea/vcs.xml
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbs.db (Windows)
+Thumbs.db
+ehthumbs.db
+
+# Fichiers temporaires et caches système
+*.swp
+*.lock
+*.tmp
+*.log
+*.pid
+*.seed
+*.orig
+
+# Fichiers de compilation Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Fichiers Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Fichiers Gradle
+.gradle/
+build/
+
+# Fichiers Eclipse (si jamais quelqu'un utilise Eclipse)
+*.launch
+.settings/
+bin/
+
+# Logs et fichiers de build
+logs/
+*.out
+
+# Autres fichiers générés par des outils de build (en général)
+dist/
