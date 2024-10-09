@@ -71,10 +71,11 @@ public class MinesweeperClient implements Runnable {
     private void closeConnection(){
         try {
             System.out.println("[CLIENT] Closing the connection with the server.");
-            socket.close();
-            this.isRunning = false;
+            socket.close(); 
         } catch (Exception e) {
             System.out.println("An error occurred while closing the connection. [" + e.getMessage() + "]");
+        }finally{
+            this.isRunning = false;
         }
     }
 
