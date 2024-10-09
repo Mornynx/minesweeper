@@ -173,9 +173,10 @@ public class MinesweeperBackend implements Runnable {
         try {
             System.out.printf("[BACKEND : %s] Closing the connection with the client [Id : %s]\n", backendID,clientID);
             socket.close();
-            this.isRunning = false;
         } catch (IOException e) {
             System.out.println("An error occurred while closing the connection. [" + e.getMessage() + "]");
+        }finally{
+            this.isRunning = false;
         }
     }
 }
