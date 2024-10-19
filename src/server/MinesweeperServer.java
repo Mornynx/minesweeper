@@ -1,19 +1,24 @@
 package server;
 
+import config.MinesweeperConfig;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-import static config.Configuration.SERVER_PORT;
-
+/**
+ * @author Lawal Benjamin
+ * This class represents the Minesweeper server.
+ * It listens for client connections and creates a new thread for each client.
+ */
 public class MinesweeperServer {
 
     public static void main(String[] args) {
         boolean isRunning = true;
-        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
-            System.out.printf("Server started on port %d\n", SERVER_PORT);
-            //serverSocket.setSoTimeout(15000);
+        try (ServerSocket serverSocket = new ServerSocket(MinesweeperConfig.SERVER_PORT)) {
+            System.out.printf("Server started on port %d\n", MinesweeperConfig.SERVER_PORT);
+            serverSocket.setSoTimeout(MinesweeperConfig.SERVER_ACCEPT_TIMEOUT);
             while(isRunning){
                 try{
                     Socket socket = serverSocket.accept();

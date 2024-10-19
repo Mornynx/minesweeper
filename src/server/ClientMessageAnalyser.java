@@ -5,8 +5,18 @@ import utils.Regex;
 
 import java.util.List;
 
+/**
+ * @author Lawal Benjamin
+ * This class is responsible for analysing the message received from the client.
+ */
 public class ClientMessageAnalyser {
 
+    /**
+     * Method to analyse the message received from the client. It will return an string array with
+     * the command to process and the coordinates if needed (TRY and FLAG commands)
+     * @param message The message received from the client
+     * @return An array with the command to process and the coordinates if needed
+     */
     public static String[] analyse(String message){
         if(message.matches(Protocol.RX_GAME_TRY)) {
             List<String> groups = Regex.getRegexGroups(message, Protocol.RX_GAME_TRY);

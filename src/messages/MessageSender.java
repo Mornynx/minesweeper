@@ -1,14 +1,15 @@
 package messages;
-
 import java.io.OutputStream;
 import java.net.Socket;
 
+/**
+ * @author Lawal Benjamin
+ * This class is responsible for sending messages to a socket.
+ */
 public class MessageSender {
     private final Socket socket;
-    private final String entity;//The entity attribute is used is only used for sout messages
-    public MessageSender(Socket socket,String entity) {
+    public MessageSender(Socket socket) {
         this.socket = socket;
-        this.entity = entity;
     }
 
     /**

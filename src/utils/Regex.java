@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author Lawal Benjamin
+ * This class is responsible for analyzing messages using regex.
+ * It uses regex to match the message and retrieve groups from it.
+ */
 public class Regex {
     /**
      * Method to analyze the message received from the client. It uses regex to match the message and retrieve groups from it.

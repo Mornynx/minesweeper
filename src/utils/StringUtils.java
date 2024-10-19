@@ -1,10 +1,14 @@
 package utils;
 
+/**
+ * @author Lawal Benjamin
+ * This class contains utility methods for string manipulation.
+ */
 public class StringUtils {
     /**
-     * Method to format the board to a string.
+     * Method to format a board as a string with each line ending with the specified endLine.
      * @param board The board to format
-     * @param endLine The end line character to use
+     * @param endLine The string to end each line with
      * @return The formatted board as a string
      */
     public static String boardToStringFormating(char[][] board,String endLine){

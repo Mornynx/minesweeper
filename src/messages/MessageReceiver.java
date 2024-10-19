@@ -1,14 +1,17 @@
 package messages;
-
-import java.net.Socket;
 import java.io.InputStream;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+/**
+ * @author Lawal Benjamin
+ * This class is responsoble for receiving messages from a socket.
+ */
 public class MessageReceiver {
     private final Socket socket;
-    private final int DEFAULT_BUFFER;
-    private final String entity;
-    private final String endMessage;
+    private final int DEFAULT_BUFFER;//Default buffer size.
+    private final String entity;//Only used for logging purposes.
+    private final String endMessage;//End of message.
 
     public MessageReceiver(String entity, Socket socket, int buffer_size,String endMessage) {
         this.entity = entity;
@@ -21,7 +24,7 @@ public class MessageReceiver {
      * Method to receive a message from the server
      * @return the message received or null if none
      */
-    public String receiveMessage() {
+    public String receiveMessage() throws RuntimeException {
         StringBuilder message = new StringBuilder();
         byte[] buffer = new byte[DEFAULT_BUFFER];
         int bytesRead;
@@ -48,6 +51,7 @@ public class MessageReceiver {
             }
         } catch (Exception e) {
             System.out.printf("[%s] An error occurred while receiving the message. [%s]%n", entity, e.getMessage());
+            throw new RuntimeException(e);
         }
         return message.length() > 0 ? message.toString() : null;
     }

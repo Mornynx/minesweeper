@@ -1,5 +1,6 @@
 package server;
 
+import config.MinesweeperConfig;
 import config.Protocol;
 import exception.UnauthorizeMoveException;
 import messages.MessageReceiver;
@@ -15,9 +16,13 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.UUID;
 
-import static config.Configuration.*;
-import static model.GameStatus.GAME_OVER;
-
+/**
+ * @author Lawal Benjamin
+ * This class is responsible for handling the backend of the minesweeper game.
+ * It's a thread that listens for messages from the client and processes them with the game logic.
+ * @see Runnable
+ * @see IGame
+ */
 public class MinesweeperBackend implements Runnable {
     private final String backendID;
     private final Socket socket;
@@ -40,24 +45,25 @@ public class MinesweeperBackend implements Runnable {
         initSenderReceiver();
         System.out.printf("CLIENT [%s] CONNECTED TO BACKEND [%s]\n", clientID, backendID);
         try {
-            socket.setSoTimeout(CONNECTION_TIMEOUT);
+            socket.setSoTimeout(MinesweeperConfig.CONNECTION_TIMEOUT);
             // Set the timeout on the socket
             initGame();
             while(isRunning){
-                sleep(MESSAGE_DELAY);
+                sleep(MinesweeperConfig.MESSAGE_DELAY);//Simulate a delay to avoid consuming too much CPU and
+                //to give the client time to send a message.
                 String received = messageReceiver.receiveMessage();
                 if(received != null){
-                    System.out.printf("[BACKEND : %s] Received message: %s\n", backendID, received.trim());
-                    analyzeMessage(received);
+                    System.out.printf("[BACKEND : %s] Received message: %s\n", backendID, received);
+                    String [] analyzedMessage = ClientMessageAnalyser.analyse(received);
+                    processGameCommand(analyzedMessage);
                 } else {
-                    // Handle the case where the timeout occurred
                     System.out.println("Timeout or client disconnected.");
-                    break;  // Exit the loop if the timeout occurs
+                    break;
                 }
             }
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        } finally {
+        } catch (SocketException | RuntimeException e) {
+            System.out.println("An error occurred while setting the timeout. [" + e.getMessage() + "]");
+        }finally {
             closeConnection();
         }
     }
@@ -76,22 +82,11 @@ public class MinesweeperBackend implements Runnable {
         }
     }
 
-    /**
-     * Method to analyze the message received from the client.
-     * POSSIBLE MESSAGES:
-     * - QUIT
-     * - TRY
-     * - FLAG
-     * - CHEAT
-     * @param message The message received
-     */
-    private void analyzeMessage(String message){
-        if(isPlayValid(message)){
-                String [] analyzedMessage = ClientMessageAnalyser.analyse(message);
-                processGameCommand(analyzedMessage);
-        }
-    }
 
+    /**
+     * Method to process the game command. The command is analyzed and the appropriate action is taken.
+     * @param analyzedMessage The analyzed message from the client. It contains the command and the arguments.
+     */
     private void processGameCommand(String[] analyzedMessage){
         if(analyzedMessage==null || analyzedMessage.length == 0){
             return;
@@ -106,18 +101,18 @@ public class MinesweeperBackend implements Runnable {
                 int y = Integer.parseInt(coordinates[1]);
                 try{
                     GameStatus status = game.playGame(x, y, command);
-                    if(status == GAME_OVER){
+                    if(status == GameStatus.GAME_OVER){
                         message = getBoardAsString(game.cheatBoard()) + Protocol.GAME_LOST_MESSAGE;
                         messageSender.sendMessage(message);
                         this.isRunning = false;
                         return;
                     }else if(status == GameStatus.FINISHED){
-                        message = getBoardAsString(game.getBoard()) + Protocol.GAME_WON_MESSAGE;
+                        message = getBoardAsString(game.cheatBoard()) + Protocol.GAME_WON_MESSAGE;
                         messageSender.sendMessage(message);
                         this.isRunning = false;
                         return;
                     }
-                    message = getBoardAsString(game.getBoard()) + Protocol.END_SERVER_MESSAGE;
+                    message = getBoardAsString(game.getBoard()) + Protocol.RETURN_CHAR;
                     break;
                 }catch(UnauthorizeMoveException e){
                     messageSender.sendMessage(Protocol.GAME_INVALID_RANGE_MESSAGE);
@@ -130,7 +125,7 @@ public class MinesweeperBackend implements Runnable {
                     messageSender.sendMessage(message);
                     return;
                 }
-            message = getBoardAsString(game.cheatBoard()) + Protocol.END_SERVER_MESSAGE;
+                message = getBoardAsString(game.cheatBoard()) + Protocol.RETURN_CHAR;
                 break;
             case QUIT:
                 this.isRunning = false;
@@ -142,27 +137,30 @@ public class MinesweeperBackend implements Runnable {
         messageSender.sendMessage(message);
     }
 
+    /**
+     * Method to get the board as a string in the format required by the protocol.
+     * @param board The board to convert to a string.
+     * @return The board as a string.
+     */
     private String getBoardAsString(char[][] board){
-        return StringUtils.boardToStringFormating(board, Protocol.END_SERVER_MESSAGE);
+        return StringUtils.boardToStringFormating(board, Protocol.RETURN_CHAR);
     }
 
+    /**
+     * Method to initialize the game
+     */
     private void initGame(){
         System.out.printf("[BACKEND : %s] Client [Id : %s] requested to start a new game.\n", backendID,clientID);
         game = new Game();
-        //messageSender.sendMessage("NEW GAME STARTED" + Protocol.END_SERVER_MESSAGE);
     }
 
-    private boolean isPlayValid(String message){
-        //TODO: Implement the logic to check if the play is valid
-        return true;
-    }
 
     /**
      * Method to initialize the sender and receiver
      */
     private void initSenderReceiver(){
-        this.messageSender = new MessageSender(socket,"SERVER");
-        this.messageReceiver = new MessageReceiver("SERVER",socket, DEFAULT_BUFFER, Protocol.END_CLIENT_MESSAGE);
+        this.messageSender = new MessageSender(socket);
+        this.messageReceiver = new MessageReceiver("SERVER",socket, MinesweeperConfig.DEFAULT_BUFFER, Protocol.END_CLIENT_MESSAGE);
     }
 
 
@@ -175,7 +173,7 @@ public class MinesweeperBackend implements Runnable {
             socket.close();
         } catch (IOException e) {
             System.out.println("An error occurred while closing the connection. [" + e.getMessage() + "]");
-        }finally{
+        }finally {
             this.isRunning = false;
         }
     }
